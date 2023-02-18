@@ -12,4 +12,5 @@ import java.util.List;
 public class ItemsListDto {
     List<ItemsDto> materialsDtoList;
     List<ItemsDto> productsDtoList;
+    CrystalDto crystalDto;
 }

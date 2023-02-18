@@ -11,11 +11,9 @@ import com.sparta.project_d.repository.CrystalRepository;
 import com.sparta.project_d.repository.MaterialsRepository;
 import com.sparta.project_d.repository.ProductsRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,16 @@ public class ItemService {
             productsDtoList.add(new ItemsDto(products));
         }
 
-        return new ItemsListDto(materialsDtoList, productsDtoList);
+        List<Crystal> crystals = crystalRepository.findAll();
+
+        return new ItemsListDto(materialsDtoList, productsDtoList, new CrystalDto(crystals.get(0)));
+    }
+
+    @Transactional
+    public String saveCrystal(CrystalDto crystalDto) {
+        List<Crystal> crystals = crystalRepository.findAll();
+        crystals.get(0).update(crystalDto.getPrice());
+        return "저장완료";
     }
 
     public List<Materials> getMaterials() {
@@ -48,12 +55,5 @@ public class ItemService {
 
     public List<Products> getProducts() {
         return productsRepository.findAllByOrderByGradeAsc();
-    }
-
-    @Transactional
-    public String saveCrystal(@Valid CrystalDto crystalDto) {
-        List<Crystal> crystals = crystalRepository.findAll();
-        crystals.get(0).update(crystalDto.getPrice());
-        return "저장완료";
     }
 }

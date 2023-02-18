@@ -1,11 +1,16 @@
 package com.sparta.project_d.open.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.project_d.Enum.PriceType;
 import com.sparta.project_d.dto.ItemsDto;
 import com.sparta.project_d.Enum.Category;
 import com.sparta.project_d.dto.ItemsListDto;
 import com.sparta.project_d.entity.Materials;
 import com.sparta.project_d.entity.Products;
+import com.sparta.project_d.repository.MaterialsRepository;
+import com.sparta.project_d.repository.ProductsRepository;
 import com.sparta.project_d.service.ItemService;
 import com.sparta.project_d.util.ItemChecker;
 import com.sparta.project_d.open.dto.BodyDto;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,17 +28,36 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OpenService {
+    private final ProductsRepository productsRepository;
+    private final MaterialsRepository materialsRepository;
     @Value("${jwt.secret.key}")
     private String secretKey;
     private final String AUTHORIZATION_HEADER = "Authorization";
     private final String BEARER_PREFIX = "Bearer ";
     private final ItemChecker itemChecker;
     private final ItemService itemService;
+
+    private final StringRedisTemplate redisTemplate;
+
+    @Transactional
+    public List<ItemsDto> searchRedis() throws JsonProcessingException {
+        String key = "itemsDtoList";
+        ObjectMapper objectMapper = new ObjectMapper();
+        System.out.println(redisTemplate.hasKey(key));
+        if (redisTemplate.hasKey(key)) {
+            return objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {});
+        }
+
+        List<ItemsDto> itemsDtoList = searchItems(PriceType.CurrentMinPrice).getMaterialsDtoList();
+        redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(itemsDtoList), 30, TimeUnit.SECONDS);
+        return itemsDtoList;
+    }
 
     @Transactional
     public ItemsListDto searchItems(PriceType priceType) {
@@ -55,13 +80,12 @@ public class OpenService {
             log.info("LOSTARK API Status Code : " + status);
 
             String response = responseEntity.getBody();
-
             fromJSONtoItems(response,
                     value == Category.융화 ? productsDtoList : materialsDtoList
                     , priceType);
         }
 
-        return new ItemsListDto(materialsDtoList, productsDtoList);
+        return new ItemsListDto(materialsDtoList, productsDtoList, null);
     }
 
     public void fromJSONtoItems(String response, List<ItemsDto> list, PriceType priceType) {
@@ -70,8 +94,10 @@ public class OpenService {
 
         for (int i = 0; i < items.length(); i++) {
             JSONObject itemJson = items.getJSONObject(i);
-            if (itemChecker.isItemNeeded(itemJson.getString("Name"))) {
-                list.add(new ItemsDto(itemJson, priceType));
+            String itemName = itemJson.getString("Name");
+            System.out.println(itemName);
+            if (itemChecker.isItemNeeded(itemName)) {
+                list.add(new ItemsDto(itemJson, priceType, itemChecker.getCategory(itemName)));
             }
         }
     }
@@ -93,5 +119,14 @@ public class OpenService {
         for (int i = 0; i < productsList.size(); i++) {
             productsList.get(i).update(productsDtoList.get(i));
         }
+
+//        for (ItemsDto itemsDto : materialsDtoList) {
+//            materialsList.add(new Materials(itemsDto));
+//        }
+//        for (ItemsDto itemsDto : productsDtoList) {
+//            productsList.add(new Products(itemsDto));
+//        }
+//        materialsRepository.saveAll(materialsList);
+//        productsRepository.saveAll(productsList);
     }
 }

@@ -91,64 +91,51 @@
         }
     </style>
     <script>
-        // 테이블의 순서대로 가격 매길 예정, 0:고대 유물 ~ 12:최상급 오레하
-        // 각종 데이터 초기화
-        let items = new Array(13)
-        for (let i = 0; i < items.length; i++) {
-            items[i] = {}
-        }
-
         let user_data = new Array(5)
         user_data[0] = ''
         user_data[1] = 100
         for (let i = 2; i < user_data.length; i++) {
             user_data[i] = 0
         }
-
-        let factory = new Array(6)
-        for (let i = 0; i < factory.length; i++) {
-            factory[i] = {}
-        }
-
-        let table_color = new Array(13)
-        for (let i = 0; i < 9; i++) {
-            if (i % 3 == 0) {
-                table_color[i] = "table-light"
-            } else if (i % 3 == 1) {
-                table_color[i] = "table-success"
-            } else {
-                table_color[i] = "table-primary"
-            }
-        }
-        table_color[9] = "table-success"
-        table_color[10] = "table-primary"
-        table_color[11] = "table-danger"
-        table_color[12] = "table-info"
-
-        let crystal = 3000
+        // 테이블의 순서대로 가격 매길 예정, 0:고대 유물 ~ 12:최상급 오레하
+        // 각종 데이터 초기화
+        // let items = new Array(13)
+        // for (let i = 0; i < items.length; i++) {
+        //     items[i] = {}
+        // }
+        //
+        //
+        // let factory = new Array(6)
+        // for (let i = 0; i < factory.length; i++) {
+        //     factory[i] = {}
+        // }
+        //
+        // let table_color = new Array(13)
+        // for (let i = 0; i < 9; i++) {
+        //     if (i % 3 == 0) {
+        //         table_color[i] = "table-light"
+        //     } else if (i % 3 == 1) {
+        //         table_color[i] = "table-success"
+        //     } else {
+        //         table_color[i] = "table-primary"
+        //     }
+        // }
+        // table_color[9] = "table-success"
+        // table_color[10] = "table-primary"
+        // table_color[11] = "table-danger"
+        // table_color[12] = "table-info"
+        //
+        // let crystal = 3000
 
         $(document).ready(function () {
-            set_price(1)
+            set_price()
         })
 
-        function set_price(tryNum) {
-            if(tryNum == 3){
-                alert("가격 로드 실패.")
-                console.log("가격 로드 실패")
-                return
-            }
+        function set_price() {
             $.ajax({
-                type: "POST",
-                url: "/today_price",
-                data: {data_give: tryNum},
-                beforeSend: function () {
-                    //마우스 커서를 로딩 중 커서로 변경
-                    $('html').css("cursor", "wait");
-                },
-                complete: function () {
-                    //마우스 커서를 원래대로 돌린다
-                    $('html').css("cursor", "auto");
-                },
+                type: "GET",
+                url: "/items",
+                data: {},
                 success: function (response) {
                     let rows = response["daily_price"]
                     crystal = response["crystal"][0]["crystal"]
@@ -193,95 +180,28 @@
         function set_factory() {
             $('#table_3').empty()
 
-            // 제작비
-            factory[0]['product_cost'] = Math.floor(203 * (100 - user_data[3]) / 100)
-                + (0.56 * items[0]['price'] + 2.8 * items[1]['price'] + 0.7 * items[2]['price'])
 
-            factory[1]['product_cost'] = Math.floor(205 * (100 - user_data[3]) / 100)
-                + (0.64 * items[0]['price'] + 2.6 * items[1]['price'] + 0.8 * items[2]['price'])
+            let part_color1 = color(factory[i]['profit'] / 20)
+            let part_color2 = color(factory[i]['daily_profit'] / 1000)
 
-            factory[2]['product_cost'] = Math.floor(250 * (100 - user_data[3]) / 100)
-                + (0.94 * items[0]['price'] + 2.9 * items[1]['price'] + 1.6 * items[2]['price'])
+            temp_html = `<tr class=${table_color[number]}>
+                            <th class=${table_color[number]} scope="row">
+                                <img width="25" src="${items[number]['image']}"/>
+                            </th>
+                            <td class=${table_color[number]} style="text-overflow: ellipsis;
+                                            overflow: hidden;
+                                            white-space : nowrap;
+                                            text-align: left;
+                                            border-right: 1px solid black">${factory[i]['name']}</td>
+                            <td class=${part_color1}>${Math.round(factory[i]['profit'])}</td>
+                            <td class=${part_color2} style="border-left: 1px solid black">${factory[i]['daily_profit']}</td>
+                            <td style="border-left: 1px solid black">${Math.round(factory[i]['maintenance_day'])}</td>
+                            <td>${factory[i]['maintenance_3day']}</td>
+                            <td>${factory[i]['purchase_energy']}</td>
+                        </tr>`
 
-            factory[3]['product_cost'] = Math.floor(300 * (100 - user_data[3]) / 100)
-                + (1.07 * items[0]['price'] + 5.1 * items[1]['price'] + 5.2 * items[2]['price'])
+            $('#table_3').append(temp_html)
 
-            factory[4]['product_cost'] = Math.floor(300 * (100 - user_data[3]) / 100)
-                + (1.42 * items[3]['price'] + 6.9 * items[4]['price'] + 5.2 * items[5]['price'])
-
-            factory[5]['product_cost'] = Math.floor(300 * (100 - user_data[3]) / 100)
-                + (1.42 * items[6]['price'] + 6.9 * items[7]['price'] + 5.2 * items[8]['price'])
-
-            // 판매 수수료
-            for (let i = 9; i < 13; i++) {
-                items[i]['fee'] = Math.ceil((items[i]['price'] - 1) / 20)
-            }
-
-            // 매출
-            factory[0]['sales'] = 1.05 * 30 * (items[9]['price'] - items[9]['fee'])
-            factory[1]['sales'] = 1.05 * 30 * (items[10]['price'] - items[10]['fee'])
-            factory[2]['sales'] = 1.05 * 20 * (items[11]['price'] - items[11]['fee'])
-            factory[3]['sales'] = 1.05 * 15 * (items[12]['price'] - items[12]['fee'])
-            factory[4]['sales'] = 1.05 * 15 * (items[12]['price'] - items[12]['fee'])
-            factory[5]['sales'] = 1.05 * 15 * (items[12]['price'] - items[12]['fee'])
-
-            // 활동력 소모량
-            for (let i = 0; i < 6; i++) {
-                let number = i + 2
-                if (number > 5) {
-                    number = 5
-                }
-                factory[i]['energy_cost'] = Math.floor((72 * number) * (100 - user_data[2]) / 100)
-            }
-
-            // 테이블 데이터
-            for (let i = 0; i < factory.length; i++) {
-                let number = i + 9
-
-                // 초과 범위 숫자 -> 12
-                if (number > 12) {
-                    number = 12
-                }
-
-                factory[i]['name'] = items[number]['name']
-                factory[3]['name'] = '최상급 (고고학)'
-                factory[4]['name'] = '최상급 (낚시)'
-                factory[5]['name'] = '최상급 (수렵)'
-                factory[i]['profit'] = factory[i]['sales'] - factory[i]['product_cost']
-                factory[i]['daily_quantity'] = 24 * 6 * user_data[1] / factory[i]['energy_cost']
-                factory[i]['daily_profit'] = Math.round(factory[i]['profit'] * factory[i]['daily_quantity'])
-
-                factory[i]['maintenance_day'] = 1.3 * factory[i]['sales']
-                    * (items[number]['price'] / (items[number]['price'] - items[number]['fee']))
-                    * factory[i]['daily_quantity'] + 40 * factory[i]['product_cost']
-
-                factory[i]['maintenance_3day'] = Math.round(3 * factory[i]['maintenance_day']
-                    - 2 * 40 * factory[i]['product_cost'])
-
-                factory[i]['purchase_energy'] = Math.round(30000 / factory[i]['energy_cost']
-                    * factory[i]['profit'] - 1.44 * crystal * 20 / 19)
-
-                let part_color1 = color(factory[i]['profit'] / 20)
-                let part_color2 = color(factory[i]['daily_profit'] / 1000)
-
-                temp_html = `<tr class=${table_color[number]}>
-                                <th class=${table_color[number]} scope="row">
-                                    <img width="25" src="${items[number]['image']}"/>
-                                </th>
-                                <td class=${table_color[number]} style="text-overflow: ellipsis;
-                                                overflow: hidden;
-                                                white-space : nowrap;
-                                                text-align: left;
-                                                border-right: 1px solid black">${factory[i]['name']}</td>
-                                <td class=${part_color1}>${Math.round(factory[i]['profit'])}</td>
-                                <td class=${part_color2} style="border-left: 1px solid black">${factory[i]['daily_profit']}</td>
-                                <td style="border-left: 1px solid black">${Math.round(factory[i]['maintenance_day'])}</td>
-                                <td>${factory[i]['maintenance_3day']}</td>
-                                <td>${factory[i]['purchase_energy']}</td>
-                            </tr>`
-
-                $('#table_3').append(temp_html)
-            }
         }
 
         function color(number) {
@@ -360,8 +280,10 @@
                 type: "POST",
                 url: "api/saveMember",
                 data: JSON.stringify(memberData),
+                contentType: "application/json",
                 success: function (response) {
-                    alert(response['message'])
+                    console.log(response)
+                    alert(response)
                     set_factory()
                 },
                 error: function (response){
@@ -376,46 +298,26 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/loadMember/{user_name}",
+                url: `/api/loadMember/${user_name}`,
                 data: {},
                 success: function (response) {
                     console.log(response)
+                    $(user_data_1).val(response["recovery"])
+                    $(user_data_2).val(response["energyReduce"])
+                    $(user_data_3).val(response["goldReduce"])
+                    $(user_data_4).val(response["timeReduce"])
 
-                    let rows = response['user_data']
-
-                    if (typeof rows == "string") {
-                        alert(rows)
-                    } else {
-                        for (let i = 0; i < user_data.length; i++) {
-                            let str = '#user_data_' + i
-
-                            if (i == 0) {
-                                user_data[i] = rows[0][i]
-                            } else {
-                                user_data[i] = Number(rows[0][i])
-                            }
-
-                            $(str).val(user_data[i])
-                        }
-
-                        alert('영지 정보 로드 완료')
-                    }
-
+                    alert('영지 정보 로드 완료')
                     set_factory()
                 }
             })
         }
 
-        function crawling(tryNum) {
-            if(tryNum == 3){
-                alert("최저가 로드 실패")
-                console.log("최저가 로드 실패")
-                return
-            }
+        function search() {
             $.ajax({
-                type: "POST",
-                url: "/crawling",
-                data: {data_give: tryNum},
+                type: "Get",
+                url: "/api/search",
+                data: {},
                 beforeSend: function () {
                     //마우스 커서를 로딩 중 커서로 변경
                     $('html').css("cursor", "wait");
@@ -426,18 +328,13 @@
                 },
                 success: function (response) {
                     alert('최저가 검색 완료')
-                    for (let i = 0; i < response['price_list'].length; i++) {
-                        items[i]['price'] = response['price_list'][i]
+                    for (let i = 0; i < response.length; i++) {
                         let price_name = '#price_' + i
-                        $(price_name).text(items[i]['price'])
+                        $(price_name).text(response[i]['price_list'])
                     }
 
-                    set_factory()
+                    // set_factory()
                 },
-                error: function () {
-                    tryNum++
-                    crawling(tryNum)
-                }
             })
         }
 
@@ -525,7 +422,7 @@
                     </tbody>
                 </table>
                 <div>
-                    <button onclick="crawling(1)" type="button" class="btn btn-dark" style="margin-right: 10px">최저가
+                    <button onclick="search()" type="button" class="btn btn-dark" style="margin-right: 10px">최저가
                         가져오기
                     </button>
                     <button onclick="modify()" type="button" class="btn btn-primary">가격 수정하기</button>

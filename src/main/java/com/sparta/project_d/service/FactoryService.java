@@ -15,9 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FactoryService {
 
-    public List<FactoryDto> calculate(Member member, List<ItemsDto> materialsList, List<ItemsDto> productsList, Crystal crystal) {
+    private final MemberService memberService;
 
+    public List<FactoryDto> calculate(String name, List<ItemsDto> materialsList, List<ItemsDto> productsList, Crystal crystal) {
         List<FactoryDto> factoryDtoList = new ArrayList<>();
+        Member member = memberService.getMember(name);
 
         for (Factory factory : Factory.values()) {
             // 생산품 객체.

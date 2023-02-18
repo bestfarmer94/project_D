@@ -11,12 +11,11 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 @Getter
 public class Items {
-    private String itemName;
+    protected String itemName;
     protected int price;
-    private String image;
+    protected String image;
     @Enumerated(EnumType.STRING)
-    private Grade grade;
+    protected Grade grade;
     @Enumerated(EnumType.STRING)
-    private Category category;
-
+    protected Category category;
 }

@@ -34,6 +34,8 @@ public class MemberService {
     }
 
     public Member getMember(String name){
+        System.out.println(memberRepository.findByName(name));
+        System.out.println(name);
         Member member = memberRepository.findByName(name).orElseThrow(
                 () -> new IllegalArgumentException("저장된 정보가 없습니다.")
         );

@@ -13,7 +13,7 @@ public enum Category {
     private final String itemName;
     private final int unit;
 
-    Category(int code, String itemName, int unit){
+    Category(int code, String itemName, int unit) {
         this.code = code;
         this.itemName = itemName;
         this.unit = unit;

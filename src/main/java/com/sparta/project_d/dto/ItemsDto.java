@@ -17,11 +17,12 @@ public class ItemsDto{
     private Category category;
     private Grade grade;
 
-    public ItemsDto(JSONObject itemJason, PriceType priceType) {
+    public ItemsDto(JSONObject itemJason, PriceType priceType, Category category) {
         this.itemName = itemJason.getString("Name");
         this.price = itemJason.getInt(priceType.name());
         this.image = itemJason.getString("Icon");
-        this.category = Category.valueOf(itemName);
+        this.category = category;
+        this.grade = Grade.valueOf(itemJason.getString("Grade"));
     }
 
     public ItemsDto(Items item){
