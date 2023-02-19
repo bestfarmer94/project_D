@@ -40,6 +40,9 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.1'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-chrome-driver', version: '4.8.1'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-api', version: '4.8.1'
 }
 
 tasks.named('test') {

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Products extends Items{
+public class Products extends Items implements Comparable<Products>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,5 +26,13 @@ public class Products extends Items{
 
     public void update(ItemsDto itemsDto) {
         this.price = itemsDto.getPrice();
+    }
+
+    @Override
+    public int compareTo(Products o) {
+        if(this.category == o.category){
+            return this.grade.compareTo(o.grade);
+        }
+        return this.category.compareTo(o.category);
     }
 }

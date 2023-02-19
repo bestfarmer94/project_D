@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,7 +39,6 @@ public class ItemService {
         }
 
         List<Crystal> crystals = crystalRepository.findAll();
-
         return new ItemsListDto(materialsDtoList, productsDtoList, new CrystalDto(crystals.get(0)));
     }
 
@@ -49,11 +49,30 @@ public class ItemService {
         return "저장완료";
     }
 
+    @Transactional
+    public ItemsListDto updateItems(ItemsListDto itemsListDto) {
+        List<Materials> materialsList = getMaterials();
+        for (int i = 0; i < materialsList.size(); i++) {
+            materialsList.get(i).update(itemsListDto.getMaterialsDtoList().get(i));
+        }
+
+        List<Products> productsList = getProducts();
+        for (int i = 0; i < productsList.size(); i++) {
+            productsList.get(i).update(itemsListDto.getProductsDtoList().get(i));
+        }
+
+        return itemsListDto;
+    }
+
     public List<Materials> getMaterials() {
-        return materialsRepository.findAllByOrderByCategoryAscGradeAsc();
+        List<Materials> materialsList = materialsRepository.findAll();
+        Collections.sort(materialsList);
+        return materialsList;
     }
 
     public List<Products> getProducts() {
-        return productsRepository.findAllByOrderByGradeAsc();
+        List<Products> productsList = productsRepository.findAll();
+        Collections.sort(productsList);
+        return productsList;
     }
 }

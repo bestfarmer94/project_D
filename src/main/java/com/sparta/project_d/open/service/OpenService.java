@@ -9,8 +9,6 @@ import com.sparta.project_d.Enum.Category;
 import com.sparta.project_d.dto.ItemsListDto;
 import com.sparta.project_d.entity.Materials;
 import com.sparta.project_d.entity.Products;
-import com.sparta.project_d.repository.MaterialsRepository;
-import com.sparta.project_d.repository.ProductsRepository;
 import com.sparta.project_d.service.ItemService;
 import com.sparta.project_d.util.ItemChecker;
 import com.sparta.project_d.open.dto.BodyDto;
@@ -34,8 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class OpenService {
-    private final ProductsRepository productsRepository;
-    private final MaterialsRepository materialsRepository;
+
     @Value("${jwt.secret.key}")
     private String secretKey;
     private final String AUTHORIZATION_HEADER = "Authorization";
@@ -49,13 +46,13 @@ public class OpenService {
     public List<ItemsDto> searchRedis() throws JsonProcessingException {
         String key = "itemsDtoList";
         ObjectMapper objectMapper = new ObjectMapper();
-        System.out.println(redisTemplate.hasKey(key));
+
         if (redisTemplate.hasKey(key)) {
             return objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {});
         }
 
         List<ItemsDto> itemsDtoList = searchItems(PriceType.CurrentMinPrice).getMaterialsDtoList();
-        redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(itemsDtoList), 30, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(itemsDtoList), 3, TimeUnit.SECONDS);
         return itemsDtoList;
     }
 
@@ -95,7 +92,6 @@ public class OpenService {
         for (int i = 0; i < items.length(); i++) {
             JSONObject itemJson = items.getJSONObject(i);
             String itemName = itemJson.getString("Name");
-            System.out.println(itemName);
             if (itemChecker.isItemNeeded(itemName)) {
                 list.add(new ItemsDto(itemJson, priceType, itemChecker.getCategory(itemName)));
             }

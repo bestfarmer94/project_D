@@ -97,35 +97,24 @@
         for (let i = 2; i < user_data.length; i++) {
             user_data[i] = 0
         }
-        // 테이블의 순서대로 가격 매길 예정, 0:고대 유물 ~ 12:최상급 오레하
-        // 각종 데이터 초기화
-        // let items = new Array(13)
-        // for (let i = 0; i < items.length; i++) {
-        //     items[i] = {}
-        // }
-        //
-        //
-        // let factory = new Array(6)
-        // for (let i = 0; i < factory.length; i++) {
-        //     factory[i] = {}
-        // }
-        //
-        // let table_color = new Array(13)
-        // for (let i = 0; i < 9; i++) {
-        //     if (i % 3 == 0) {
-        //         table_color[i] = "table-light"
-        //     } else if (i % 3 == 1) {
-        //         table_color[i] = "table-success"
-        //     } else {
-        //         table_color[i] = "table-primary"
-        //     }
-        // }
-        // table_color[9] = "table-success"
-        // table_color[10] = "table-primary"
-        // table_color[11] = "table-danger"
-        // table_color[12] = "table-info"
-        //
-        // let crystal = 3000
+
+        let materials = new Array(9).fill({})
+        let products = new Array(4).fill({})
+
+        let table_color = new Array(13)
+        for (let i = 0; i < 9; i++) {
+            if (i % 3 == 0) {
+                table_color[i] = "table-light"
+            } else if (i % 3 == 1) {
+                table_color[i] = "table-success"
+            } else {
+                table_color[i] = "table-primary"
+            }
+        }
+        table_color[9] = "table-success"
+        table_color[10] = "table-primary"
+        table_color[11] = "table-danger"
+        table_color[12] = "table-info"
 
         $(document).ready(function () {
             set_price()
@@ -134,73 +123,114 @@
         function set_price() {
             $.ajax({
                 type: "GET",
-                url: "/items",
+                url: "/api/items",
                 data: {},
                 success: function (response) {
-                    let rows = response["daily_price"]
-                    crystal = response["crystal"][0]["crystal"]
+                    let crystal = response["crystalDto"]["price"]
                     $('#crystal').val(crystal)
 
-                    for (let i = 0; i < items.length; i++) {
-                        items[i]['name'] = rows[i]["name"]
-                        items[i]['price'] = Number(rows[i]["price"])
-                        items[i]['image'] = rows[i]["image"]
+                    let materialsDtoList = response["materialsDtoList"]
+                    let productsDtoList = response["productsDtoList"]
+                    for (let i = 0; i < materialsDtoList.length + productsDtoList.length; i++) {
+                        let num = i;
+                        let name = ''
+                        let price = 0
+                        let image = ''
 
+                        if (i >= materialsDtoList.length) {
+                            num -= materialsDtoList.length
+                            name = productsDtoList[num]["itemName"]
+                            price = productsDtoList[num]["price"]
+                            products[num] = productsDtoList[num]
+                            image = productsDtoList[num]["image"]
+
+                        } else {
+                            name = materialsDtoList[num]["itemName"]
+                            price = materialsDtoList[num]["price"]
+                            materials[num] = materialsDtoList[num]
+                            image = materialsDtoList[num]["image"]
+
+                        }
                         let price_id = "price_" + i
                         let input_id = "input_" + i
 
                         let temp_html = `<tr class=${table_color[i]}>
                                             <th scope="row">
-                                                <img width="25" src=${items[i]['image']} />
+                                                <img width="25" src=${image} />
                                             </th>
                                             <td style="text-overflow: ellipsis;
                                                                         overflow: hidden;
-                                                                        white-space : nowrap;">${items[i]['name']}</td>
-                                            <td id=${price_id}>${items[i]['price']}</td>
+                                                                        white-space : nowrap;">${name}</td>
+                                            <td id=${price_id}>${price}</td>
                                             <td><input id=${input_id} style="width: 55px; height: 25px;" type="text" class="form-control">
                                             </td>
                                          </tr>`
-
-                        if (i < 9) {
+                        if (i < materials.length) {
                             $('#table_1').append(temp_html)
                         } else {
                             $('#table_2').append(temp_html)
                         }
                     }
-
                     set_factory()
-                },
-                error: function () {
-                    tryNum++
-                    set_price(tryNum)
                 }
             })
         }
 
         function set_factory() {
+
+            let memberDto = {
+                "name": user_data[0],
+                "recovery": user_data[1],
+                "energyReduce": user_data[2],
+                "goldReduce": user_data[3],
+                "timeReduce": user_data[4]
+            }
+            let itemsListDto = {
+                "materialsDtoList": materials,
+                "productsDtoList": products,
+                "crystalDto": {
+                    "price": Number($('#crystal').val())
+                }
+            }
+            let factoryData = {
+                "memberDto": memberDto,
+                "itemsListDto": itemsListDto
+            }
+            console.log(factoryData)
             $('#table_3').empty()
 
-
-            let part_color1 = color(factory[i]['profit'] / 20)
-            let part_color2 = color(factory[i]['daily_profit'] / 1000)
-
-            temp_html = `<tr class=${table_color[number]}>
-                            <th class=${table_color[number]} scope="row">
-                                <img width="25" src="${items[number]['image']}"/>
+            $.ajax({
+                type: "POST",
+                url: "/api/factory",
+                data: JSON.stringify(factoryData),
+                contentType: "application/json",
+                success: function (response) {
+                    console.log(response)
+                    for (let i = 0; i < response.length; i++) {
+                        let part_color1 = color(response[i]['profit'] / 20)
+                        let part_color2 = color(response[i]['dailyProfit'] / 1000)
+                        let num = i
+                        if(i >= 3) num = 12;
+                        let temp_html = `<tr class=${table_color[num]}>
+                            <th class=${table_color[num]} scope="row">
+                                <img width="25" src="${response[i]['image']}"/>
                             </th>
-                            <td class=${table_color[number]} style="text-overflow: ellipsis;
+                            <td class=${table_color[num]} style="text-overflow: ellipsis;
                                             overflow: hidden;
                                             white-space : nowrap;
                                             text-align: left;
-                                            border-right: 1px solid black">${factory[i]['name']}</td>
-                            <td class=${part_color1}>${Math.round(factory[i]['profit'])}</td>
-                            <td class=${part_color2} style="border-left: 1px solid black">${factory[i]['daily_profit']}</td>
-                            <td style="border-left: 1px solid black">${Math.round(factory[i]['maintenance_day'])}</td>
-                            <td>${factory[i]['maintenance_3day']}</td>
-                            <td>${factory[i]['purchase_energy']}</td>
+                                            border-right: 1px solid black">${response[i]['itemName']}</td>
+                            <td class=${part_color1}>${Math.round(response[i]['profit'])}</td>
+                            <td class=${part_color2} style="border-left: 1px solid black">${response[i]['dailyProfit']}</td>
+                            <td style="border-left: 1px solid black">${Math.round(response[i]['maintenance_day'])}</td>
+                            <td>${response[i]['maintenance_3day']}</td>
+                            <td>${response[i]['purchaseEnergy']}</td>
                         </tr>`
 
-            $('#table_3').append(temp_html)
+                        $('#table_3').append(temp_html)
+                    }
+                }
+            })
 
         }
 
@@ -221,8 +251,38 @@
         }
 
         function saveMember() {
-
             // 양식 체크
+            if (!checkMember()) {
+                return
+            }
+            changeMember()
+
+            let memberData = {
+                "name": user_data[0],
+                "recovery": user_data[1],
+                "energyReduce": user_data[2],
+                "goldReduce": user_data[3],
+                "timeReduce": user_data[4]
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "api/saveMember",
+                data: JSON.stringify(memberData),
+                contentType: "application/json",
+                success: function (response) {
+                    console.log(response)
+                    alert(response)
+                    set_factory()
+                },
+                error: function (response) {
+                    console.log("실패")
+                }
+            })
+
+        }
+
+        function checkMember() {
             for (let i = 0; i < 5; i++) {
                 let string = '#user_data_' + i
 
@@ -233,7 +293,7 @@
                         alert('저장할 닉네임을 적어주세요.')
                         $(string).val("")
                         $(string).focus()
-                        return
+                        return false
                     }
                 } else {
                     user_data[i] = Number($(string).val().trim())
@@ -247,50 +307,32 @@
                         alert('숫자만 입력해주세요.')
                         $(string).val("")
                         $(string).focus()
-                        return
+                        return false
                     }
 
                     if (i == 1 && user_data[i] < 100) {
                         alert('영지의 기운 회복량은 기본이 100 입니다!')
                         $(string).val("100")
                         $(string).focus()
-                        return
+                        return false
                     }
 
                     if (i > 1 && (user_data[i] < 0 || user_data[i] > 100)) {
                         alert('불가능한 수치입니다.')
                         $(string).val("0")
                         $(string).focus()
-                        return
+                        return false
                     }
                 }
             }
+            return true;
+        }
 
-            let memberData = {
-                "name": user_data[0],
-                "recovery": user_data[1],
-                "energyReduce": user_data[2],
-                "goldReduce": user_data[3],
-                "timeReduce": user_data[4]
+        function changeMember() {
+            for (let i = 0; i < user_data.length; i++) {
+                let input_name = "#user_data_" + i
+                user_data[i] = $(input_name).val()
             }
-            console.log(memberData)
-            console.log(JSON.stringify(memberData))
-
-            $.ajax({
-                type: "POST",
-                url: "api/saveMember",
-                data: JSON.stringify(memberData),
-                contentType: "application/json",
-                success: function (response) {
-                    console.log(response)
-                    alert(response)
-                    set_factory()
-                },
-                error: function (response){
-                    console.log("실패")
-                }
-            })
-
         }
 
         function loadMember() {
@@ -306,6 +348,7 @@
                     $(user_data_2).val(response["energyReduce"])
                     $(user_data_3).val(response["goldReduce"])
                     $(user_data_4).val(response["timeReduce"])
+                    changeMember()
 
                     alert('영지 정보 로드 완료')
                     set_factory()
@@ -318,23 +361,15 @@
                 type: "Get",
                 url: "/api/search",
                 data: {},
-                beforeSend: function () {
-                    //마우스 커서를 로딩 중 커서로 변경
-                    $('html').css("cursor", "wait");
-                },
-                complete: function () {
-                    //마우스 커서를 원래대로 돌린다
-                    $('html').css("cursor", "auto");
-                },
                 success: function (response) {
                     alert('최저가 검색 완료')
                     for (let i = 0; i < response.length; i++) {
                         let price_name = '#price_' + i
-                        $(price_name).text(response[i]['price_list'])
+                        $(price_name).text(response[i]["price"])
+                        materials[i]["price"] = response[i]["price"]
                     }
-
-                    // set_factory()
-                },
+                    set_factory()
+                }
             })
         }
 
@@ -344,7 +379,13 @@
                 let price_name = '#price_' + i
                 if ($(input_name).val().length != 0) {
                     $(price_name).text($(input_name).val())
-                    items[i]['price'] = Number($(input_name).val())
+
+                    if (i >= materials.length) {
+                        let num = i - materials.length;
+                        products[num]["price"] = Number($(price_name).text())
+                    } else {
+                        materials[i]["price"] = Number($(price_name).text())
+                    }
                 }
             }
 
@@ -352,12 +393,14 @@
         }
 
         function save_crystal() {
-            crystal = $('#crystal').val()
-
+            let crystalDto = {
+                "price": Number($('#crystal').val())
+            }
             $.ajax({
-                type: "POST",
-                url: "/save_crystal",
-                data: {data_give: crystal},
+                type: "PUT",
+                url: "/api/crystal",
+                data: JSON.stringify(crystalDto),
+                contentType: "application/json",
                 success: function (response) {
                     set_factory()
                 }
@@ -460,7 +503,8 @@
             </tbody>
         </table>
         <div style="display: flex; flex-direction: row;">
-            <img width="30" src="http://cdn-lostark.game.onstove.com/uploadfiles/shop/fac96901171e4269a3c48ca6fe07f924.jpg"/>
+            <img width="30"
+                 src="http://cdn-lostark.game.onstove.com/uploadfiles/shop/fac96901171e4269a3c48ca6fe07f924.jpg"/>
             <input id="crystal" style="width: 60px; height: 40px; margin: 0 10px 0 10px;" type="text"
                    class="form-control">
             <button onclick="save_crystal()" type="button" class="btn btn-primary btn-xs">수정</button>

@@ -27,7 +27,6 @@ public class MemberController {
 
     @GetMapping("/loadMember/{name}")
     public MemberDto loadMember(@PathVariable String name) {
-        System.out.println(name);
         return memberService.loadMember(name);
     }
 
