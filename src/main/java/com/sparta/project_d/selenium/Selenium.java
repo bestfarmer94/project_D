@@ -46,12 +46,12 @@ public class Selenium {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         Thread.sleep(2000);
         driver.findElement(By.className("css-307iw5")).click();
-        System.out.println("수행완료");
+        System.out.println("출석 종료");
         driver.close();
         driver.quit();
     }
 
-    @Scheduled(cron = "5 0 5 * * *")
+    @Scheduled(cron = "0 0 5 * * *")
     public void checkIn() throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
         ChromeOptions options = new ChromeOptions();
@@ -78,7 +78,7 @@ public class Selenium {
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         Thread.sleep(2000);
         driver.findElement(By.className("css-13067o3")).click();
-        System.out.println("수행완료");
+        System.out.println("출석 시작");
         driver.close();
         driver.quit();
     }
