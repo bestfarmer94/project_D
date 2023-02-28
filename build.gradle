@@ -49,6 +49,11 @@ dependencies {
 //    implementation group: 'org.seleniumhq.selenium', name: 'selenium-devtools-v110', version: '4.8.1'
 }
 
+// plain jar를 안만들게끔 하는 dependency -> CI/CD 옵션
+jar {
+    enabled = false
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
