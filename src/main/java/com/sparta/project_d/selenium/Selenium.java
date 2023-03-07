@@ -18,7 +18,7 @@ public class Selenium {
     private String id;
     @Value("${hangPwd}")
     private String pwd;
-
+    //
     @Scheduled(cron = "30 59 4 * * *")
     public void checkOut() throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
