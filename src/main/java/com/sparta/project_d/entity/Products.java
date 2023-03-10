@@ -15,7 +15,7 @@ public class Products extends Items implements Comparable<Products>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    //
     public Products(ItemsDto itemsDto) {
         this.itemName = itemsDto.getItemName();
         this.price = itemsDto.getPrice();
