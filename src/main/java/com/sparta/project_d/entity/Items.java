@@ -10,7 +10,7 @@ import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 @Getter
-public class Items {
+public class Items extends TimeStamped{
     protected String itemName;
     protected int price;
     protected String image;

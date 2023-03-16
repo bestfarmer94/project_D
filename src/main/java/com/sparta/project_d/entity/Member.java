@@ -10,7 +10,7 @@ import javax.persistence.Id;
 
 @Getter
 @Entity
-public class Member {
+public class Member extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

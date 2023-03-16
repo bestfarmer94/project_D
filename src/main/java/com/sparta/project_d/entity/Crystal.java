@@ -9,7 +9,7 @@ import javax.persistence.Id;
 
 @Getter
 @Entity
-public class Crystal {
+public class Crystal extends TimeStamped{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
