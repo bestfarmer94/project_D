@@ -31,11 +31,11 @@ public class ItemsController {
         return ResponseEntity.ok(itemService.saveCrystal(crystalDto));
     }
 
-    @PutMapping("/items")
-    public ResponseEntity updateItems(@Valid @RequestBody ItemsListDto itemsListDto, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
-        }
-        return ResponseEntity.ok(itemService.updateItems(itemsListDto));
-    }
+//    @PutMapping("/items")
+//    public ResponseEntity updateItems(@Valid @RequestBody ItemsListDto itemsListDto, BindingResult bindingResult) {
+//        if(bindingResult.hasErrors()){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
+//        }
+//        return ResponseEntity.ok(itemService.updateItems(itemsListDto));
+//    }
 }

@@ -1,5 +1,7 @@
 package com.sparta.project_d.selenium;
 
+import com.sparta.project_d.open.service.OpenService;
+import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor
 public class Selenium {
     private WebDriver driver;
     private final String url = "https://hanghae99.spartacodingclub.kr/v2/checks";
@@ -18,6 +21,8 @@ public class Selenium {
     private String id;
     @Value("${hangPwd}")
     private String pwd;
+
+    private final OpenService openService;
 
     @Scheduled(cron = "30 59 4 * * *")
     public void checkOut() throws InterruptedException {
@@ -81,5 +86,10 @@ public class Selenium {
         System.out.println("출석 시작");
         driver.close();
         driver.quit();
+    }
+
+    @Scheduled(cron = "0 1 0 * * *")
+    public void updateItems() throws InterruptedException {
+        openService.updateItems();
     }
 }
