@@ -43,7 +43,7 @@ public class OpenService {
     private final StringRedisTemplate redisTemplate;
 
     @Transactional
-    public List<ItemsDto> searchRedis() throws JsonProcessingException {
+    public List<ItemsDto> searchRedis() throws JsonProcessingException, InterruptedException {
         String key = "itemsDtoList";
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,7 +57,7 @@ public class OpenService {
     }
 
     @Transactional
-    public ItemsListDto searchItems(PriceType priceType) {
+    public ItemsListDto searchItems(PriceType priceType) throws InterruptedException {
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTHORIZATION_HEADER, BEARER_PREFIX + secretKey);
@@ -65,6 +65,7 @@ public class OpenService {
         List<ItemsDto> productsDtoList = new ArrayList<>();
 
         for (Category value : Category.values()) {
+            TimeUnit.MILLISECONDS.sleep(200);
             if (priceType == PriceType.CurrentMinPrice && value == Category.융화) {
                 continue;
             }

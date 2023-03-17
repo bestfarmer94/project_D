@@ -22,7 +22,7 @@ public class OpenController {
     private final Selenium selenium;
 
     @GetMapping("/search")
-    public List<ItemsDto> searchItems() throws JsonProcessingException {
+    public List<ItemsDto> searchItems() throws JsonProcessingException, InterruptedException {
         return openService.searchRedis();
     }
 
