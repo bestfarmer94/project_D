@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class OpenService {
-    //
+
     @Value("${jwt.secret.key}")
     private String secretKey;
     private final String AUTHORIZATION_HEADER = "Authorization";
