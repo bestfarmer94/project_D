@@ -4,14 +4,18 @@ import com.sparta.project_d.Enum.Category;
 import com.sparta.project_d.Enum.Grade;
 import com.sparta.project_d.Enum.PriceType;
 import com.sparta.project_d.entity.Items;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 
 import javax.validation.constraints.Positive;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemsDto implements Comparable<ItemsDto> {
     private String itemName;
     @Positive(message = "가격은 1이상의 정수로 입력해야 합니다.")
