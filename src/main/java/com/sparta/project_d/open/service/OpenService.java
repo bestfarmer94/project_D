@@ -7,6 +7,7 @@ import com.sparta.project_d.Enum.PriceType;
 import com.sparta.project_d.dto.ItemsDto;
 import com.sparta.project_d.Enum.Category;
 import com.sparta.project_d.dto.ItemsListDto;
+import com.sparta.project_d.dto.ResponseDto;
 import com.sparta.project_d.entity.Materials;
 import com.sparta.project_d.entity.Products;
 import com.sparta.project_d.service.ItemService;
@@ -39,24 +40,24 @@ public class OpenService {
     private final String BEARER_PREFIX = "Bearer ";
     private final ItemChecker itemChecker;
     private final ItemService itemService;
-
     private final StringRedisTemplate redisTemplate;
 
+
     @Transactional
-    public List<ItemsDto> searchRedis() throws JsonProcessingException, InterruptedException {
+    public ResponseDto<List<ItemsDto>> searchRedis() throws JsonProcessingException, InterruptedException {
         String key = "itemsDtoList";
         ObjectMapper objectMapper = new ObjectMapper();
 
         if (redisTemplate.hasKey(key)) {
-            return objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {});
+            return ResponseDto.success(objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {}));
         }
 
         List<ItemsDto> itemsDtoList = searchItems(PriceType.CurrentMinPrice).getMaterialsDtoList();
         redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(itemsDtoList), 3, TimeUnit.SECONDS);
-        return itemsDtoList;
+        return ResponseDto.success(itemsDtoList);
     }
 
-    @Transactional
+
     public ItemsListDto searchItems(PriceType priceType) throws InterruptedException {
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -83,8 +84,9 @@ public class OpenService {
                     , priceType);
         }
 
-        return new ItemsListDto(materialsDtoList, productsDtoList, null);
+        return ItemsListDto.of(materialsDtoList, productsDtoList, null);
     }
+
 
     public void fromJSONtoItems(String response, List<ItemsDto> list, PriceType priceType) {
         JSONObject rjson = new JSONObject(response);
@@ -94,11 +96,13 @@ public class OpenService {
             JSONObject itemJson = items.getJSONObject(i);
             String itemName = itemJson.getString("Name");
             if (itemChecker.isItemNeeded(itemName)) {
-                list.add(new ItemsDto(itemJson, priceType, itemChecker.getCategory(itemName)));
+                list.add(ItemsDto.ofJson(itemJson, priceType, itemChecker.getCategory(itemName)));
             }
         }
     }
 
+
+    @Scheduled(cron = "0 1 0 * * *")
     @Transactional
     public void updateItems() throws InterruptedException {
         log.info("가격 업데이트 실행");

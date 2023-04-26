@@ -4,37 +4,44 @@ import com.sparta.project_d.Enum.Category;
 import com.sparta.project_d.Enum.Grade;
 import com.sparta.project_d.Enum.PriceType;
 import com.sparta.project_d.entity.Items;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 
 import javax.validation.constraints.Positive;
 
 @Getter
-@NoArgsConstructor
+@Builder
 public class ItemsDto implements Comparable<ItemsDto> {
     private String itemName;
-    @Positive
+    @Positive(message = "가격은 1이상의 정수로 입력해야 합니다.")
     private int price;
     private String image;
     private Category category;
     private Grade grade;
 
-    public ItemsDto(JSONObject itemJason, PriceType priceType, Category category) {
-        this.itemName = itemJason.getString("Name");
-        this.price = priceType == PriceType.CurrentMinPrice ? itemJason.getInt(priceType.name()) : (int) Math.round(itemJason.getDouble(priceType.name()));
-        this.image = itemJason.getString("Icon");
-        this.category = category;
-        this.grade = Grade.valueOf(itemJason.getString("Grade"));
+
+    public static ItemsDto of(Items items) {
+        return ItemsDto.builder()
+                .itemName(items.getItemName())
+                .price(items.getPrice())
+                .image(items.getImage())
+                .category(items.getCategory())
+                .grade(items.getGrade())
+                .build();
     }
 
-    public ItemsDto(Items item) {
-        this.itemName = item.getItemName();
-        this.price = item.getPrice();
-        this.image = item.getImage();
-        this.category = item.getCategory();
-        this.grade = item.getGrade();
+
+    public static ItemsDto ofJson(JSONObject itemJason, PriceType priceType, Category category) {
+        return ItemsDto.builder()
+                .itemName(itemJason.getString("Name"))
+                .price(priceType == PriceType.CurrentMinPrice ? itemJason.getInt(priceType.name()) : (int) Math.round(itemJason.getDouble(priceType.name())))
+                .image(itemJason.getString("Icon"))
+                .category(category)
+                .grade(Grade.valueOf(itemJason.getString("Grade")))
+                .build();
     }
+
 
     @Override
     public int compareTo(ItemsDto o) {

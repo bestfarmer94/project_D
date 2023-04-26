@@ -17,6 +17,20 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WRYQWWHWX9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'G-WRYQWWHWX9');
+    </script>
+
     <title>디붕이네 공장</title>
 
     <!--    애플 기기 북마크 요청시 필요하다고 한다. 큰 거 주면 돌려막기 가능  -->
@@ -126,11 +140,11 @@
                 url: "/api/items",
                 data: {},
                 success: function (response) {
-                    let crystal = response["crystalDto"]["price"]
+                    let crystal = response["data"]["crystalDto"]["price"]
                     $('#crystal').val(crystal)
 
-                    let materialsDtoList = response["materialsDtoList"]
-                    let productsDtoList = response["productsDtoList"]
+                    let materialsDtoList = response["data"]["materialsDtoList"]
+                    let productsDtoList = response["data"]["productsDtoList"]
                     for (let i = 0; i < materialsDtoList.length + productsDtoList.length; i++) {
                         let num = i;
                         let name = ''
@@ -205,12 +219,12 @@
                 data: JSON.stringify(factoryData),
                 contentType: "application/json",
                 success: function (response) {
-                    console.log(response)
+                    response = response["data"]
                     for (let i = 0; i < response.length; i++) {
                         let part_color1 = color(response[i]['profit'] / 20)
                         let part_color2 = color(response[i]['dailyProfit'] / 1000)
                         let num = i
-                        if(i >= 3) num = 12;
+                        if (i >= 3) num = 12;
                         let temp_html = `<tr class=${table_color[num]}>
                             <th class=${table_color[num]} scope="row">
                                 <img width="25" src="${response[i]['image']}"/>
@@ -271,12 +285,11 @@
                 data: JSON.stringify(memberData),
                 contentType: "application/json",
                 success: function (response) {
-                    console.log(response)
-                    alert(response)
+                    alert(response["data"])
                     set_factory()
                 },
-                error: function (response) {
-                    console.log("실패")
+                error: function (request) {
+                    alert(request.responseText);
                 }
             })
 
@@ -343,15 +356,17 @@
                 url: `/api/loadMember/${user_name}`,
                 data: {},
                 success: function (response) {
-                    console.log(response)
-                    $(user_data_1).val(response["recovery"])
-                    $(user_data_2).val(response["energyReduce"])
-                    $(user_data_3).val(response["goldReduce"])
-                    $(user_data_4).val(response["timeReduce"])
+                    $(user_data_1).val(response["data"]["recovery"])
+                    $(user_data_2).val(response["data"]["energyReduce"])
+                    $(user_data_3).val(response["data"]["goldReduce"])
+                    $(user_data_4).val(response["data"]["timeReduce"])
                     changeMember()
 
                     alert('영지 정보 로드 완료')
                     set_factory()
+                },
+                error: function (request) {
+                    alert(request.responseText);
                 }
             })
         }
@@ -363,10 +378,10 @@
                 data: {},
                 success: function (response) {
                     alert('최저가 검색 완료')
-                    for (let i = 0; i < response.length; i++) {
+                    for (let i = 0; i < response["data"].length; i++) {
                         let price_name = '#price_' + i
-                        $(price_name).text(response[i]["price"])
-                        materials[i]["price"] = response[i]["price"]
+                        $(price_name).text(response["data"][i]["price"])
+                        materials[i]["price"] = response["data"][i]["price"]
                     }
                     set_factory()
                 }
@@ -402,7 +417,11 @@
                 data: JSON.stringify(crystalDto),
                 contentType: "application/json",
                 success: function (response) {
+                    alert(response["data"])
                     set_factory()
+                },
+                error: function (request) {
+                    alert(request.responseText);
                 }
             })
         }

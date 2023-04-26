@@ -3,6 +3,7 @@ package com.sparta.project_d.service;
 import com.sparta.project_d.dto.CrystalDto;
 import com.sparta.project_d.dto.ItemsDto;
 import com.sparta.project_d.dto.ItemsListDto;
+import com.sparta.project_d.dto.ResponseDto;
 import com.sparta.project_d.entity.Crystal;
 import com.sparta.project_d.entity.Items;
 import com.sparta.project_d.entity.Materials;
@@ -26,28 +27,31 @@ public class ItemService {
     private final ProductsRepository productsRepository;
     private final CrystalRepository crystalRepository;
 
+
     @Transactional(readOnly = true)
-    public ItemsListDto getItems() {
+    public ResponseDto<ItemsListDto> getItems() {
         List<ItemsDto> materialsDtoList = new ArrayList<>();
         for (Items materials : getMaterials()) {
-            materialsDtoList.add(new ItemsDto(materials));
+            materialsDtoList.add(ItemsDto.of(materials));
         }
 
         List<ItemsDto> productsDtoList = new ArrayList<>();
         for (Items products : getProducts()) {
-            productsDtoList.add(new ItemsDto(products));
+            productsDtoList.add(ItemsDto.of(products));
         }
 
         List<Crystal> crystals = crystalRepository.findAll();
-        return new ItemsListDto(materialsDtoList, productsDtoList, new CrystalDto(crystals.get(0)));
+        return ResponseDto.success(ItemsListDto.of(materialsDtoList, productsDtoList, CrystalDto.of(crystals.get(0))));
     }
 
+
     @Transactional
-    public String saveCrystal(CrystalDto crystalDto) {
+    public ResponseDto<String> saveCrystal(CrystalDto crystalDto) {
         List<Crystal> crystals = crystalRepository.findAll();
         crystals.get(0).update(crystalDto.getPrice());
-        return "저장완료";
+        return ResponseDto.success("크리스탈 가격 저장 완료");
     }
+
 
     @Transactional
     public ItemsListDto updateItems(ItemsListDto itemsListDto) {

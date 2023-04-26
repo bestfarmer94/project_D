@@ -1,12 +1,10 @@
 package com.sparta.project_d.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class FactoryResponseDto {
     private String itemName;
     private String image;

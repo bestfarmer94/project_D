@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FactoryService {
 
-    public List<FactoryResponseDto> calculate(FactoryRequestDto factoryRequestDto) {
+    public ResponseDto<List<FactoryResponseDto>> calculate(FactoryRequestDto factoryRequestDto) {
         MemberDto member = factoryRequestDto.getMemberDto();
         ItemsListDto itemsListDto = factoryRequestDto.getItemsListDto();
         List<ItemsDto> materialsDtoList = itemsListDto.getMaterialsDtoList();
@@ -56,9 +56,17 @@ public class FactoryService {
             // 활동력 구매 수익
             int purchaseEnergy = (int) Math.round(30000 / energyCost * profit - 1.44 * crystalDto.getPrice() * 20 / 19.0);
 
-            factoryDtoList.add(new FactoryResponseDto(itemName, image, (int) profit, dailyProfit, (int) maintenance_day, maintenance_3day, purchaseEnergy));
+            factoryDtoList.add(FactoryResponseDto.builder()
+                    .itemName(itemName)
+                    .image(image)
+                    .profit((int) profit)
+                    .dailyProfit(dailyProfit)
+                    .maintenance_day((int) maintenance_day)
+                    .maintenance_3day(maintenance_3day)
+                    .purchaseEnergy(purchaseEnergy)
+                    .build());
         }
 
-        return factoryDtoList;
+        return ResponseDto.success(factoryDtoList);
     }
 }

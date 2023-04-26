@@ -22,8 +22,6 @@ public class Selenium {
     @Value("${hangPwd}")
     private String pwd;
 
-    private final OpenService openService;
-
     @Scheduled(cron = "30 59 4 * * *")
     public void checkOut() throws InterruptedException {
         System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
@@ -88,8 +86,8 @@ public class Selenium {
         driver.quit();
     }
 
-    @Scheduled(cron = "0 1 0 * * *")
-    public void updateItems() throws InterruptedException {
-        openService.updateItems();
-    }
+//    @Scheduled(cron = "0 1 0 * * *")
+//    public void updateItems() throws InterruptedException {
+//        openService.updateItems();
+//    }
 }

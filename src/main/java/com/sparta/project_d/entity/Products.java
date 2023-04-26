@@ -1,21 +1,20 @@
 package com.sparta.project_d.entity;
 
 import com.sparta.project_d.dto.ItemsDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Products extends Items implements Comparable<Products>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //
+
+
+    @Builder
     public Products(ItemsDto itemsDto) {
         this.itemName = itemsDto.getItemName();
         this.price = itemsDto.getPrice();
@@ -24,9 +23,11 @@ public class Products extends Items implements Comparable<Products>{
         this.grade = itemsDto.getGrade();
     }
 
+
     public void update(ItemsDto itemsDto) {
         this.price = itemsDto.getPrice();
     }
+
 
     @Override
     public int compareTo(Products o) {
