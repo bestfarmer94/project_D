@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api")
@@ -23,7 +24,7 @@ public class MemberController {
 
 
     @GetMapping("/loadMember/{name}")
-    public ResponseDto<MemberDto> loadMember(@PathVariable String name) {
+    public ResponseDto<MemberDto> loadMember(@PathVariable @NotBlank String name) {
         return memberService.loadMember(name);
     }
 
