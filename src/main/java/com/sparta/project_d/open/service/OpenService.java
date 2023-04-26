@@ -49,11 +49,13 @@ public class OpenService {
         ObjectMapper objectMapper = new ObjectMapper();
 
         if (redisTemplate.hasKey(key)) {
+            log.info("Redis data");
             return ResponseDto.success(objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {}));
         }
 
         List<ItemsDto> itemsDtoList = searchItems(PriceType.CurrentMinPrice).getMaterialsDtoList();
         redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(itemsDtoList), 3, TimeUnit.SECONDS);
+        log.info("Api data");
         return ResponseDto.success(itemsDtoList);
     }
 

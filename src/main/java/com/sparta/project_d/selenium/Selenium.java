@@ -1,6 +1,5 @@
 package com.sparta.project_d.selenium;
 
-import com.sparta.project_d.open.service.OpenService;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
