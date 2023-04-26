@@ -39,7 +39,7 @@ public class FactoryService {
                     + factory.getUncommonQuantity() * uncommon.getPrice()
                     + factory.getRareQuantity() * rare.getPrice();
             // 수수료
-            int fee = (int) Math.ceil((product.getPrice() - 1) / 20.0);
+            int fee = (int) Math.ceil(product.getPrice() / 20.0);
             // 단위별 매출
             double sales = 1.05 * factory.getProduceQuantity() * (product.getPrice() - fee);
             // 활동력 소모량
