@@ -104,7 +104,7 @@ public class OpenService {
     }
 
 
-    @Scheduled(cron = "0 5 0 * * *")
+    @Scheduled(cron = "0 10 0 * * *")
     @Transactional
     public void updateItems() throws InterruptedException {
         log.info("가격 업데이트 실행");
