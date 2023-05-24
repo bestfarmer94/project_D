@@ -48,6 +48,7 @@ public class OpenService {
         String key = "itemsDtoList";
         ObjectMapper objectMapper = new ObjectMapper();
 
+        // Redis Data 존재하는지. (3초 이내에 누군가 검색했는지.)
         if (redisTemplate.hasKey(key)) {
             log.info("Redis data");
             return ResponseDto.success(objectMapper.readValue(redisTemplate.opsForValue().get(key), new TypeReference<List<ItemsDto>>() {}));
@@ -74,7 +75,8 @@ public class OpenService {
             }
 
             HttpEntity<BodyDto> requestEntity = new HttpEntity<BodyDto>(new BodyDto(value), headers);
-            ResponseEntity<String> responseEntity = rest.exchange("https://developer-lostark.game.onstove.com/markets/items", HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> responseEntity = rest.exchange("https://developer-lostark.game.onstove.com/markets/items",
+                    HttpMethod.POST, requestEntity, String.class);
 
             HttpStatus httpStatus = responseEntity.getStatusCode();
             int status = httpStatus.value();
@@ -104,7 +106,7 @@ public class OpenService {
     }
 
 
-    @Scheduled(cron = "0 5 0 * * *")
+    @Scheduled(cron = "0 10 0 * * *")
     @Transactional
     public void updateItems() throws InterruptedException {
         log.info("가격 업데이트 실행");
@@ -121,14 +123,5 @@ public class OpenService {
         for (int i = 0; i < productsList.size(); i++) {
             productsList.get(i).update(productsDtoList.get(i));
         }
-
-//        for (ItemsDto itemsDto : materialsDtoList) {
-//            materialsList.add(new Materials(itemsDto));
-//        }
-//        for (ItemsDto itemsDto : productsDtoList) {
-//            productsList.add(new Products(itemsDto));
-//        }
-//        materialsRepository.saveAll(materialsList);
-//        productsRepository.saveAll(productsList);
     }
 }
