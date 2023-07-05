@@ -115,7 +115,7 @@
         }
 
         let materials = new Array(9).fill({})
-        let products = new Array(4).fill({})
+        let products = new Array(3).fill({})
 
         let table_color = new Array(13)
         for (let i = 0; i < 9; i++) {
@@ -127,10 +127,9 @@
                 table_color[i] = "table-primary"
             }
         }
-        table_color[9] = "table-success"
-        table_color[10] = "table-primary"
-        table_color[11] = "table-danger"
-        table_color[12] = "table-info"
+        table_color[9] = "table-primary"
+        table_color[10] = "table-danger"
+        table_color[11] = "table-info"
 
         $(document).ready(function () {
             set_price()
@@ -225,8 +224,8 @@
                     for (let i = 0; i < response.length; i++) {
                         let part_color1 = color(response[i]['profit'] / 20)
                         let part_color2 = color(response[i]['dailyProfit'] / 1000)
-                        let num = i
-                        if (i >= 3) num = 12;
+                        let num = i + 9
+                        if (num >= 12) num = 11;
                         let temp_html = `<tr class=${table_color[num]}>
                             <th class=${table_color[num]} scope="row">
                                 <img width="25" src="${response[i]['image']}"/>
