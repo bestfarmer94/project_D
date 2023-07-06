@@ -393,7 +393,8 @@
             for (let i = 0; i < 13; i++) {
                 let input_name = '#input_' + i
                 let price_name = '#price_' + i
-                if ($(input_name).val().length != 0) {
+
+                if ($(input_name).val() !== "" && !isNaN($(input_name).val())) {
                     $(price_name).text($(input_name).val())
 
                     if (i >= materials.length) {
